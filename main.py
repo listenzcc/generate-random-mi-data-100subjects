@@ -33,7 +33,7 @@ data_directory.mkdir(parents=True, exist_ok=True)
 # Function and class
 
 
-def change_creation_time_windows(path, new_time):
+def change_creation_time_windows(path: Path, new_time: float):
     """
     Windows 系统下修改文件创建时间
     需要安装: pip install pywin32
@@ -60,7 +60,7 @@ def change_creation_time_windows(path, new_time):
     return
 
 
-def generate_random_mi_data(num_samples, num_channels, num_timepoints, num_classes):
+def generate_random_mi_data(num_samples: int, num_channels: int, num_timepoints: int, num_classes: int):
     """
     Generate random MI data.
 
@@ -79,14 +79,14 @@ def generate_random_mi_data(num_samples, num_channels, num_timepoints, num_class
     return X, y
 
 
-def generate_random_datetime(y=2025, m=7, d=None):
+def generate_random_datetime(y: int = 2025, m: int = 7, d: int = None):
     """
     Generate random datetime string in the format "YYYY-MM-DD HH:MM:SS".
 
     Parameters:
-        y (int): Year.
-        m (int): Month.
-        d (int): Day.
+        y (int): Year, default 2025.
+        m (int): Month, default 7.
+        d (int): Day, if None, random value is generated.
 
     Returns:
         str: Random datetime string.
@@ -110,28 +110,30 @@ if __name__ == "__main__":
     num_classes = 2  # Number of classes
     ch_names = [f'Ch{i+1}' for i in range(num_channels)]
 
-    # Generate random MI data
-    X, y = generate_random_mi_data(
-        num_samples, num_channels, num_timepoints, num_classes)
+    n_subjects = 2
+    for subject_id in range(1, 1+n_subjects):
+        # Subject information
+        subject = {
+            'id': f"S{subject_id:04d}",
+            'date': generate_random_datetime(2025, 7),
+            'ch_names': ch_names,
+        }
 
-    # Subject information
-    subject = {
-        'id': "S0001",
-        'date': generate_random_datetime(2025, 7),
-        'ch_names': ch_names,
-    }
+        # Generate random MI data
+        X, y = generate_random_mi_data(
+            num_samples, num_channels, num_timepoints, num_classes)
 
-    # Save to .mat file
-    output_path = data_directory.joinpath(f"{subject['id']}.mat")
-    savemat(output_path, {'X': X, 'y': y, 'subject': subject})
-    print(f"Random MI data saved to {output_path}")
+        # Save to .mat file
+        output_path = data_directory.joinpath(f"{subject['id']}.mat")
+        savemat(output_path, {'X': X, 'y': y, 'subject': subject})
+        print(f"Random MI data saved to {output_path}")
 
-    # Set to 2023-07-23 00:00:00
-    # Convert subject['date'] to timestamp
-    timestamp = np.datetime64(subject['date']).astype(
-        'datetime64[s]').astype(float)
-    change_creation_time_windows(output_path, timestamp)
+        # Convert subject['date'] to timestamp
+        timestamp = np.datetime64(subject['date']).astype(
+            'datetime64[s]').astype(float)
+        change_creation_time_windows(output_path, timestamp)
 
+    # Check the saved .mat file
     loaded = loadmat(output_path)
     print(f'Loaded keys: {loaded.keys()}')
     for key in loaded:
