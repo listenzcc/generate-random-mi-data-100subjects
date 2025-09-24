@@ -26,7 +26,7 @@ import numpy as np
 from pathlib import Path
 from scipy.io import savemat, loadmat
 
-data_directory = Path("./data")
+data_directory = Path("D://MI-Data-Subject100")
 data_directory.mkdir(parents=True, exist_ok=True)
 
 # %% ---- 2025-09-23 ------------------------
@@ -110,14 +110,17 @@ if __name__ == "__main__":
     num_classes = 2  # Number of classes
     ch_names = [f'Ch{i+1}' for i in range(num_channels)]
 
-    n_subjects = 2
+    n_subjects = 100  # Number of subjects
     for subject_id in range(1, 1+n_subjects):
         # Subject information
         subject = {
             'id': f"S{subject_id:04d}",
-            'date': generate_random_datetime(2025, 7),
+            'date': generate_random_datetime(2025, random.randint(5, 7)),
             'ch_names': ch_names,
         }
+
+        # Randomize number of samples per subject
+        num_samples = random.randint(80, 120)
 
         # Generate random MI data
         X, y = generate_random_mi_data(
